@@ -67,21 +67,23 @@ while True:
             try:
                 with open('results.csv', mode=write_mode, newline = '') as outfile:
                         results_writer = csv.writer(outfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                        record = ['WIN', 'DRAW']
                         if write_mode == 'w':
-                            results_writer.writerow(["Game ID", "Winner", "Winner's Score", "Opponent", "Opponent's Score", "End Reason"])
+                            results_writer.writerow(["Game ID", "Winner", "Winner's Score", "Opponent", "Opponent's Score", "Winner Started?", "End Reason"])
                         for game in data['games']:
-                            if game['players'][0]['result']=='WIN':
+                            if game['players'][0]['result'] in record: #win or tie
                                 winner = game['players'][0]['username']
                                 winscore = game['players'][0]['score']
                                 loser = game['players'][1]['username']
                                 losescore = game['players'][1]['score']
-                            else: #loss or tie
+                                winner_start=True
+                            else: #loss
                                 loser = game['players'][0]['username']
                                 losescore = game['players'][0]['score']
                                 winner = game['players'][1]['username']
                                 winscore = game['players'][1]['score']
-
-                            results_writer.writerow([game['game_id'], winner, winscore, loser, losescore, game['end_reason']])
+                                winner_start=False
+                            results_writer.writerow([game['game_id'], winner, winscore, loser, losescore, winner_start, game['end_reason']])
             except:
                 sg.popup('Error writing to file! Make sure that results.csv is not open.')
                 break
