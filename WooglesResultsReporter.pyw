@@ -10,8 +10,8 @@ URL2 = 'https://woogles.io/twirp/tournament_service.TournamentService/RecentGame
 # Define the window's contents
 layout = [[sg.Radio('Tournament', 'RADIO1', default=True), sg.Radio('Club', 'RADIO1')],#[sg.Listbox(['tournament', 'club'], size=(10,2), key='-CLUB-')],
     [sg.Text('Tournament or club ID')], [sg.InputText(key='-ID-', size=(20,1))],
-    [sg.Text('Number of games (1 second per 20 games)')], [sg.Slider(key='-NUMGAMES-', range=(1, 200), orientation='h', size=(34, 20), default_value=20)],
-    [sg.Text('Offset (no. of games to skip from the most recent)')], [sg.Slider(key='-OFFSET-', range=(0, 500), orientation='h', size=(34, 20), default_value=0)],
+    [sg.Text('Number of games (1 second per 20 games)')], [sg.Slider(key='-NUMGAMES-', range=(1, 300), orientation='h', size=(34, 20), default_value=20)],
+    [sg.Text('Offset (no. of games to skip from the most recent)')], [sg.InputText(key='-OFFSET-', size=(5,1), enable_events=True, default_text='0')],
     [sg.Checkbox('Append to file (overwrites if unchecked)', key='-APPEND-', default=False)], 
     [sg.Button('Get data!')]]
 
@@ -28,7 +28,14 @@ while True:
     # See if user wants to quit or window was closed
     if event == sg.WINDOW_CLOSED:
         break
+    elif event == '-OFFSET-' and values['-OFFSET-'] and values['-OFFSET-'][-1] not in ('0123456789.'):
+        window['-OFFSET-'].update(values['-OFFSET-'][:-1])
     elif event == 'Get data!':
+        try:
+            int(values['-OFFSET-'])
+        except ValueError:
+            sg.popup('Key in a valid number of offset!')
+            continue
         if values['-ID-'] == "":
             sg.popup('Fill in a tournament or club ID!')
             continue
