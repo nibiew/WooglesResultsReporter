@@ -7,7 +7,7 @@ A basic tool to grab Woogles tournament/club results into a .csv format ("result
 	
 	2. Fill in the tournament or club id - so "coco-blitz" if you're extracting data from the BlitzChamps tournament pool play matches.
 	
-	3. Select a number of games to extract, up to 300. The bot takes 1 second to extract 20 games, so as not to overload Woogles with API requests.
+	3. Select a number of games to extract, up to 500. The bot takes 1 second to extract 20 games, so as not to overload Woogles with API requests.
 	
 	4. (Optional) Specify an offset - this is the number of recent games the tool will skip, so if your offset is 100 and number of games to extract is 50, it will extract the 101-150 most recent games in the tournament lobby.
 	

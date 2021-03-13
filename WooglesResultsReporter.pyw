@@ -10,7 +10,7 @@ URL2 = 'https://woogles.io/twirp/tournament_service.TournamentService/RecentGame
 # Define the window's contents
 layout = [[sg.Radio('Tournament', 'RADIO1', default=True), sg.Radio('Club', 'RADIO1')],#[sg.Listbox(['tournament', 'club'], size=(10,2), key='-CLUB-')],
     [sg.Text('Tournament or club ID')], [sg.InputText(key='-ID-', size=(20,1))],
-    [sg.Text('Number of games (1 second per 20 games)')], [sg.Slider(key='-NUMGAMES-', range=(1, 300), orientation='h', size=(34, 20), default_value=20)],
+    [sg.Text('Number of games (1 second per 20 games)')], [sg.Slider(key='-NUMGAMES-', range=(1, 500), orientation='h', size=(34, 20), default_value=20, resolution=20)],
     [sg.Text('Offset (no. of games to skip from the most recent)')], [sg.InputText(key='-OFFSET-', size=(5,1), enable_events=True, default_text='0')],
     [sg.Checkbox('Append to file (overwrites if unchecked)', key='-APPEND-', default=False)], 
     [sg.Button('Get data!')]]
@@ -48,22 +48,26 @@ while True:
             }
         r = client.post(URL, json = headers)
         loaded = json.loads(r.content)
-        numGames = int(values['-NUMGAMES-'])
+        num_games = int(values['-NUMGAMES-'])
         offset = int(values['-OFFSET-'])
         write_mode = 'w' if values['-APPEND-'] == False else 'a'
+        total_games = 0
         try: loaded['id']
         except:
             sg.popup('Invalid tournament or club ID!')
             continue
-        while numGames > 0:
+        while num_games > 0:
             get_data = {
                      'id' : loaded['id'],
-                     'numGames' : min(20, numGames), #query limited to 20
+                     'numGames' : min(20, num_games), #query limited to 20
                      'offset' : offset
             }
 
             r = client.post(URL2, json = get_data)
             data = json.loads(r.content)
+            if len(data['games']) < 20:
+                num_games = -1 #end if no more games
+            total_games += len(data['games'])
             try:
                 with open('results.csv', mode=write_mode, newline = '') as outfile:
                         results_writer = csv.writer(outfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -88,12 +92,12 @@ while True:
                 sg.popup('Error writing to file! Make sure that results.csv is not open.')
                 break
             finally:
-                numGames -= 20
+                num_games -= 20
                 write_mode = 'a'
                 offset += 20
                 time.sleep(1)
-        else: #executes only if numGames<=0
-            sg.popup('Data extracted to results.csv!')
+        else: #executes only if num_games<=0
+            sg.popup(str(total_games) + ' games extracted to results.csv!')
 # Finish up by removing from the screen
 window.close()
     
